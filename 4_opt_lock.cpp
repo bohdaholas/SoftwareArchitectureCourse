@@ -16,7 +16,8 @@ int main() {
     for (int i = 0; i < IT_NUM; ++i) {
         int old_value = map->get<std::string, int>(key).get().get();
         int new_value = old_value + 1;
-        map->replace<std::string, int>(key, new_value).get();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        map->replace<std::string, int>(key, old_value, new_value).get();
     }
     int final_key_value = map->get<std::string, int>(key).get().get();
     std::cout << "After " << IT_NUM << " iterations the key value is " << final_key_value << std::endl;

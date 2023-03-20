@@ -7,11 +7,11 @@ int main() {
     auto queue = hz.get_queue("queue").get();
 
     std::cout << "Start consuming..." << std::endl;
-    for (int k = 1; k < 100; k++) {
-        queue->put(k).get();
+    for (int it = 1; it < 20; it++) {
+        auto k = queue->take<int>().get();
+        std::cout << "consumed k=" << k.get() << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
-    queue->put(-1).get();
     std::cout << "Stopped consuming" << std::endl;
 
     return 0;

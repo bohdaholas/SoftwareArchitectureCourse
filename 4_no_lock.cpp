@@ -11,11 +11,12 @@ int main() {
 
     const std::string key = "key";
     map->put<std::string, int>(key, 0);
-    constexpr int IT_NUM = 10000;
+    constexpr int IT_NUM = 1000;
 
     for (int i = 0; i < IT_NUM; ++i) {
         int old_value = map->get<std::string, int>(key).get().get();
         int new_value = old_value + 1;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         map->put<std::string, int>(key, new_value).get();
     }
     int final_key_value = map->get<std::string, int>(key).get().get();
