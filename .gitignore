@@ -1,3 +1,6 @@
+.PVS-Studio
+.idea
+FacadeService/cmake-build-debug
 # Prerequisites
 *.d
 
