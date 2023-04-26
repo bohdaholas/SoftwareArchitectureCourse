@@ -15,14 +15,14 @@ using namespace Poco::Util;
 
 class Controller {
 public:
-    virtual void accept_connections() = 0;
+    virtual void accept_connections(int listening_port) = 0;
 };
 
 class LoggingController : public Controller {
 public:
     LoggingController(int listening_port, const LoggingService& logging_service);
 
-    void accept_connections() override;
+    void accept_connections(int listening_port) override;
 
     ~LoggingController();
 

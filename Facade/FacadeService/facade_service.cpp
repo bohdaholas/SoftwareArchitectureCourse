@@ -15,19 +15,24 @@ using std::cout, std::cerr, std::endl;
 namespace http = boost::beast::http;
 
 FacadeService::FacadeService(const std::shared_ptr<tcp::socket>& logging_service_socket,
-                             const std::shared_ptr<tcp::socket>& message_service_socket)
+                             const std::shared_ptr<tcp::socket>& message_service_socket,
+                             const config_options_t& opt)
         : logging_service_socket(logging_service_socket),
           message_service_socket(message_service_socket) {
     socket_promise_map[logging_service_socket->native_handle()] = boost::promise<void>();
     socket_promise_map[message_service_socket->native_handle()] = boost::promise<void>();
+    hazelcast::client::client_config config;
+    config.get_logger_config().level(hazelcast::logger::level::off);
+    hz_client = std::make_shared<hazelcast::client::hazelcast_client>(hazelcast::new_client(std::move(config)).get());
+    queue = hz_client->get_queue(opt.mq_name).get();
 }
 
 void FacadeService::set_request(const http::request<http::string_body> &req) {
     this->request = req;
 }
 
-boost::unique_future<FacadeService::micros_response_t> FacadeService::retrieve_messages() {
-    std::vector<boost::unique_future<void>> futures;
+boost::future<FacadeService::micros_response_t> FacadeService::retrieve_messages() {
+    std::vector<boost::future<void>> futures;
     for (auto &[fd, promise]: socket_promise_map) {
         futures.emplace_back(promise.get_future());
     }
@@ -40,9 +45,11 @@ boost::unique_future<FacadeService::micros_response_t> FacadeService::retrieve_m
 
 void FacadeService::post_message() {
     Message message(request.body());
+//    cout << "writing to " << ServiceManager::get_instance().get_name(logging_service_socket->native_handle()) << " " << message.str() << endl;
     request.body() = message.str();
     request.prepare_payload();
     write_micro_request(*logging_service_socket, http::verb::post);
+    queue->put(message.str()).get();
 }
 
 void FacadeService::write_micro_request(tcp::socket &socket,
@@ -64,6 +71,8 @@ void FacadeService::write_micro_request_cb(const boost::system::error_code &erro
     } else {
         if (request_type == http::verb::get) {
             read_micro_response(socket);
+        } else {
+//            cout << "post job is done successfully" << endl;
         }
     }
 }

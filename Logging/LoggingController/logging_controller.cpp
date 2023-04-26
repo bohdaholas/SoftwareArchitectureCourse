@@ -12,8 +12,8 @@ LoggingController::LoggingController(int listening_port, const LoggingService& l
                                     : svs(listening_port),
                                       server(new RequestHandlerFactory(logging_service), svs, new HTTPServerParams) {}
 
-void LoggingController::accept_connections() {
-    cout << "--- Logging microservice is on!" << endl;
+void LoggingController::accept_connections(int listening_port) {
+    cout << "--- Logging microservice #" << listening_port << " is on!" << endl;
     server.start();
 }
 
@@ -100,7 +100,7 @@ static bool is_port_busy(int port) {
 int Server::main(const std::vector<std::string> &args) {
     std::string filename;
     if (args.empty()) {
-        filename = "config.cfg";
+        filename = "../config.cfg";
     } else if (args.size() == 1) {
         filename = args.at(0);
     } else {
@@ -112,10 +112,19 @@ int Server::main(const std::vector<std::string> &args) {
 
     HazelcastPersistence persistence("user_messages");
     LoggingService logging_service(persistence);
-    while (is_port_busy(opt.logging_microservice_port)) opt.logging_microservice_port++;
-    cout << "connected on port " << opt.logging_microservice_port << endl;
-    LoggingController logging_controller(opt.logging_microservice_port, logging_service);
-    logging_controller.accept_connections();
+    int port = 0;
+    for (int test_port = opt.logging_microservice_port; test_port < opt.logging_microservice_port + opt.logging_microservices_count; ++test_port) {
+        if (!is_port_busy(test_port)) {
+            port = test_port;
+            break;
+        }
+    }
+    if (!port) {
+        cout << "[!] Failed to launch logging microservice" << endl;
+        exit(EXIT_FAILURE);
+    }
+    LoggingController logging_controller(port, logging_service);
+    logging_controller.accept_connections(port);
 
     waitForTerminationRequest();
 

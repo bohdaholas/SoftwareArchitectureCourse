@@ -24,13 +24,16 @@ private:
 
 class HazelcastPersistence : public LoggingPersistence {
 public:
-    explicit HazelcastPersistence(std::string map_name);
+    explicit HazelcastPersistence(const std::string& map_name);
 
     void save_message(const Message &msg) override;
     std::vector<Message> get_messages() override;
 
 private:
     std::string map_name;
+    hazelcast::client::client_config clint_config;
+    std::shared_ptr<hazelcast::client::hazelcast_client> hz_client;
+    std::shared_ptr<hazelcast::client::imap> map;
 };
 
 #endif

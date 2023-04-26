@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     struct sigaction sa{};
     std::string filename;
     if (argc == 1) {
-        filename = "config.cfg";
+        filename = "../config.cfg";
     } else if (argc == 2) {
         filename = argv[1];
     } else {

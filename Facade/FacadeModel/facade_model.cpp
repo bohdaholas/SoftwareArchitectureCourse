@@ -23,21 +23,6 @@ void ServiceManager::set_name(int fd, const std::string& name) {
     socket_name_map[fd] = name;
 }
 
-//void ServiceManager::create_promise(int fd) {
-//    socket_promise_map[fd] = std::promise<void>();
-//}
-//
-//std::promise<void>& ServiceManager::get_promise(int fd) {
-//    auto it = socket_promise_map.find(fd);
-//    if (it != socket_promise_map.end()) {
-//        return it->second;
-//    }
-//}
-//
-//void ServiceManager::set_promise(int fd) {
-//    socket_promise_map[fd].set_value();
-//}
-
 Counter &Counter::get_instance() {
     static Counter instance;
     return instance;

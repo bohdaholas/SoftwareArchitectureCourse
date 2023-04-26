@@ -18,21 +18,18 @@ std::vector<Message> InMemoryPersistence::get_messages() {
     return messages_list;
 }
 
-//HazelcastPersistence::HazelcastPersistence(const std::string &map_name) : hz_client(hazelcast::new_client().get()) {
-//    map = hz_client.get_map(map_name).get();
-//}
-HazelcastPersistence::HazelcastPersistence(std::string map_name) : map_name{std::move(map_name)} {}
+HazelcastPersistence::HazelcastPersistence(const std::string& map_name) : map_name{map_name} {
+    clint_config.get_logger_config().level(hazelcast::logger::level::off);
+    hz_client = std::make_shared<hazelcast::client::hazelcast_client>(hazelcast::new_client(std::move(clint_config)).get());
+    map = hz_client->get_map(map_name).get();
+}
 
 void HazelcastPersistence::save_message(const Message &msg) {
-    auto hz_client = hazelcast::new_client().get();
-    auto map = hz_client.get_map(map_name).get();
     cout << msg.str() << endl;
     map->put<std::string, std::string>(msg.get_uuid(), msg.get_message()).get();
 }
 
 std::vector<Message> HazelcastPersistence::get_messages() {
-    auto hz_client = hazelcast::new_client().get();
-    auto map = hz_client.get_map(map_name).get();
     auto entries = map->entry_set<std::string, std::string>().get();
     std::vector<Message> res;
     res.reserve(entries.size());

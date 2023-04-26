@@ -43,7 +43,8 @@ private:
         explicit Session(Server& server,
                          tcp::socket socket,
                          const std::shared_ptr<tcp::socket>& logging_service_socket,
-                         const std::shared_ptr<tcp::socket>& message_service_socket);
+                         const std::shared_ptr<tcp::socket>& message_service_socket,
+                         const config_options_t& opt);
 
         void start();
 
@@ -68,7 +69,7 @@ private:
         Server(boost::asio::io_service &io_service, const config_options_t& opt);
 
     private:
-        void connect_to_other_microservices(io_service &io_service, const config_options_t& opt);
+        void connect_to_other_microservices(io_service &io_service);
         void async_connect_with_retry(tcp::socket &socket,
                                       const tcp::endpoint &endpoint,
                                       int retry_count,
@@ -87,7 +88,7 @@ private:
         const config_options_t& opt;
         tcp::acceptor acceptor;
         tcp::socket client_socket;
-        std::shared_ptr<tcp::socket> message_service_socket;
+        std::vector<std::shared_ptr<tcp::socket>> message_service_sockets;
         std::vector<std::shared_ptr<tcp::socket>> logging_service_sockets;
         std::vector<std::shared_ptr<Session>> active_sessions;
     };

@@ -13,10 +13,6 @@ public:
     static ServiceManager& get_instance();
     std::string get_name(int fd) const;
     void set_name(int fd, const std::string& name);
-//    void create_promise(int fd);
-//    std::promise<void>& get_promise(int fd);
-//    void set_promise(int fd);
-
 private:
     ServiceManager() = default;
     ServiceManager(const ServiceManager&) = delete;

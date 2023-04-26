@@ -21,9 +21,11 @@ public:
     void parse(const std::string &filename);
 
     int facade_microservice_port;
-    int logging_microservice_port;
     int message_microservice_port;
-
+    size_t message_microservices_count;
+    int logging_microservice_port;
+    size_t logging_microservices_count;
+    std::string mq_name;
 private:
     boost::program_options::variables_map var_map{};
     boost::program_options::options_description opt_conf{};
