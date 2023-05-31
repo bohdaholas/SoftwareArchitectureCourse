@@ -11,7 +11,7 @@ include_directories(LoggingController LoggingModel LoggingService LoggingPersist
 
 set(hazelcast-cpp-client_DIR /usr/lib/lib/cmake/hazelcast-cpp-client)
 
-add_executable(logging_microservice ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 find_package(hazelcast-cpp-client CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} hazelcast-cpp-client::hazelcast-cpp-client)
@@ -23,3 +23,6 @@ target_link_libraries(${PROJECT_NAME} Boost::program_options)
 find_package(Poco 1.12.4 COMPONENTS Net Util REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Poco_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} Poco::Net Poco::Util)
+
+find_package(ppconsul REQUIRED)
+target_link_libraries(${PROJECT_NAME} ppconsul)

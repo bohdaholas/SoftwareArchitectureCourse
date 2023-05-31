@@ -31,6 +31,8 @@ private:
     public:
         explicit RequestHandler(const LoggingService& logging_service);
         void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) override;
+        void handle_microservice_request(HTTPServerRequest& request, HTTPServerResponse& response);
+        void handle_healthcheck_request(HTTPServerResponse& response);
         static std::string messages_list_to_str(const std::vector<Message>& messages);
     private:
         LoggingService logging_service;

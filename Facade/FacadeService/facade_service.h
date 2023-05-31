@@ -33,7 +33,7 @@ public:
     using micros_response_t = std::vector<boost::future<void>>;
     FacadeService(const std::shared_ptr<tcp::socket>& logging_service_socket,
                   const std::shared_ptr<tcp::socket>& message_service_socket,
-                  const config_options_t& opt);
+                  const std::string &mq_name);
 
     void set_request(const boost::beast::http::request<boost::beast::http::string_body>& request);
 

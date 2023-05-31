@@ -14,11 +14,7 @@ namespace po = boost::program_options;
 
 config_options_t::config_options_t() {
     opt_conf.add_options()
-            ("DEFAULT.facade_microservice_port", po::value<int>(&facade_microservice_port)->required())
-            ("DEFAULT.message_microservice_port", po::value<int>(&message_microservice_port)->required())
-            ("DEFAULT.message_microservices_count", po::value<size_t>(&message_microservices_count)->required())
-            ("DEFAULT.logging_microservice_port", po::value<int>(&logging_microservice_port)->required())
-            ("DEFAULT.logging_microservices_count", po::value<size_t>(&logging_microservices_count)->required())
+            ("DEFAULT.start_port", po::value<int>(&start_port)->required())
             ("MQ_NAME.mq_name", po::value<std::string>(&mq_name)->required())
             ;
 }

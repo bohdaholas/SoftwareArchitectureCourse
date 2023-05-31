@@ -16,11 +16,17 @@
 #include <boost/bind.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/placeholders.hpp>
+#include <ppconsul/agent.h>
 #include "options_parser.h"
 #include "facade_service.h"
 
 using namespace boost::asio;
 using namespace boost::asio::ip;
+
+enum class request_type_t {
+    HealthCheck,
+    MicroserviceCommunication
+};
 
 class Controller {
 public:
@@ -31,44 +37,54 @@ class FacadeController : public Controller {
 public:
     FacadeController(const config_options_t &opt);
 
+    void register_microservice();
     void run() override;
+
+    virtual ~FacadeController();
 
 private:
     config_options_t opt;
+    ppconsul::Consul consul;
+    ppconsul::agent::Agent agent;
 
     class Server;
 
     class Session : public std::enable_shared_from_this<Session> {
     public:
-        explicit Session(Server& server,
-                         tcp::socket socket,
+        explicit Session(FacadeController::Server& server,
+                         tcp::socket client_socket,
                          const std::shared_ptr<tcp::socket>& logging_service_socket,
                          const std::shared_ptr<tcp::socket>& message_service_socket,
-                         const config_options_t& opt);
+                         const std::string &mq_name);
 
         void start();
 
     private:
         std::shared_ptr<FacadeService> facade_service;
-
-        void read_client_request();
-        void read_client_request_cb(boost::system::error_code ec,
-                                    std::size_t bytes_transferred);
-        void write_client_response(tcp::socket &socket);
-        void write_client_response_cb(boost::system::error_code error);
-
         tcp::socket client_socket;
         boost::beast::flat_buffer buffer;
         boost::beast::http::request<boost::beast::http::string_body> request;
         boost::beast::http::response<boost::beast::http::string_body> response;
         Server &server;
+
+        void read_client_request();
+        void handle_user_request();
+        void handle_healthcheck_request();
+        request_type_t parse_request_type();
+        void read_client_request_cb(boost::system::error_code ec);
+        void write_client_response(tcp::socket &socket, bool verbose);
+        void write_client_response_cb(boost::system::error_code error,
+                                      bool verbose);
     };
 
     class Server {
     public:
-        Server(boost::asio::io_service &io_service, const config_options_t& opt);
+        Server(io_service &io_service, ppconsul::Consul& consul,  int facade_microservice_port);
 
     private:
+        void connect_to_microservice(io_service& io_service,
+                                     const std::string &microservice_name,
+                                     std::vector<std::shared_ptr<tcp::socket>>& microservice_sockets);
         void connect_to_other_microservices(io_service &io_service);
         void async_connect_with_retry(tcp::socket &socket,
                                       const tcp::endpoint &endpoint,
@@ -85,7 +101,7 @@ private:
 
         friend class FacadeController::Session;
 
-        const config_options_t& opt;
+        ppconsul::Consul& consul;
         tcp::acceptor acceptor;
         tcp::socket client_socket;
         std::vector<std::shared_ptr<tcp::socket>> message_service_sockets;

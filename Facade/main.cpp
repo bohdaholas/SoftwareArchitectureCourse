@@ -30,8 +30,6 @@ int main(int argc, char *argv[]) {
     sa.sa_handler = reinterpret_cast<__sighandler_t>(&handle_sigterm);
     sigaction(SIGTERM, &sa, nullptr);
 
-    cout << "--- FacadeService is on!" << endl;
-
     FacadeController facade_controller(opt);
     facade_controller.run();
 }

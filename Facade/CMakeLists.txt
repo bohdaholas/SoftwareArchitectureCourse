@@ -21,3 +21,5 @@ find_package(Boost 1.71.0 COMPONENTS program_options system thread REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE Boost::program_options Boost::system Boost::thread)
 
+find_package(ppconsul REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE ppconsul)

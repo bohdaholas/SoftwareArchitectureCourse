@@ -9,7 +9,7 @@
 class config_options_t {
 public:
     config_options_t();
-    config_options_t(const std::string &filename);
+    explicit config_options_t(const std::string &filename);
 
     //! Explicit is better than implicit:
     config_options_t(const config_options_t&) = default;
@@ -20,11 +20,7 @@ public:
 
     void parse(const std::string &filename);
 
-    int facade_microservice_port;
-    int message_microservice_port;
-    size_t message_microservices_count;
-    int logging_microservice_port;
-    size_t logging_microservices_count;
+    int start_port;
     std::string mq_name;
 
 private:
